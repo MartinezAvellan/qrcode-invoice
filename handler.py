@@ -1,5 +1,9 @@
+import json
+
+from app.services.dock_service import create_qrcode_invoice
 from app.services.token_service import NewToken
-from app.utils.utils import get_request_id, is_str_or_dict
+from app.utils.constants import SQS_WRITE_INVOICE
+from app.utils.utils import get_request_id, is_str_or_dict, send_sqs_message
 
 new_token = NewToken()
 
@@ -10,8 +14,8 @@ def handler(event, context):
     try:
         body = is_str_or_dict(message['Records'][0]['body'])
         token, emissor = new_token.get_token(request_id, body)
-        print(token)
-        print(emissor)
+        body['qrcode'] = create_qrcode_invoice(request_id, emissor, token, body)
+        send_sqs_message(request_id, body['file_name'], SQS_WRITE_INVOICE, json.dumps(body))
     except Exception as e:
         print(e)
         raise
@@ -26,6 +30,7 @@ if __name__ == '__main__':
                  '"nome_cedente":"Banco EC S.A.",\n   '
                  '"cnpj_cedente":"33264668000103",\n   '
                  '"data_geracao":"29042022",\n   '
+                 '"data_vencimento":"29072022",\n   '
                  '"nome_cliente":"FABILANIA SANDES",\n   '
                  '"cpf_cnpj":"99958773414",\n   '
                  '"conta":"682680",\n   '

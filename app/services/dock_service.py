@@ -3,6 +3,8 @@ from http import HTTPStatus
 import requests
 from requests.auth import HTTPBasicAuth
 
+from app.utils.utils import format_date, format_amount
+
 
 def dock_token(request_id, url, app_client, app_secret):
     header = {
@@ -27,7 +29,20 @@ def create_qrcode_invoice(request_id, emissor, token, body):
         'Authorization': token
     }
     try:
-        payload = {}
+        payload = {
+            "idAccount": int(emissor['id_account']['S']),
+            "idUserAccount": int(body['conta']),
+            "loc": body['loc']['loc'],
+            "payer": {
+                "payerName": body['nome_cliente'],
+                "beneficiaryType": "F" if len(body['cpf_cnpj']) == 11 else "J",
+                "nationalRegistration": body['cpf_cnpj'],
+                "payerQuestion": "QROCDE " + body['nome_cedente']
+            },
+            "amount": format_amount(body['valor_fatura']),
+            "allowChange": True,
+            "dateExpiration": format_date(body['data_vencimento'])
+        }
         response = requests.post(emissor['url_qrcode']['S'], headers=header, json=payload, timeout=10)
         if response.status_code == HTTPStatus.CREATED:
             return response.json()

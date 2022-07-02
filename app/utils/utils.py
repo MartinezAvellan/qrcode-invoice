@@ -60,3 +60,11 @@ def token_is_expired(token_time_date):
         return False
     else:
         return True
+
+
+def format_date(data):
+    return data[4:] + "-" + data[2:4] + "-" + data[:2] + 'T00:00:00Z'
+
+
+def format_amount(amount):
+    return format(int(amount) / 100, '.02f')
