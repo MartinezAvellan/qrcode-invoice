@@ -6,6 +6,9 @@ custom:
   sqs: qrcode-invoice
   dlq: qrcode-invoice-dlq
 
+plugins:
+  - serverless-python-requirements
+
 provider:
   name: aws
   runtime: python3.8
