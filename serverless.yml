@@ -27,7 +27,7 @@ provider:
           Resource: "*"
 
 functions:
-  generateloc:
+  generateqrcode:
     handler: handler.handler
     events:
       - sqs:
